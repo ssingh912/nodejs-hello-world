@@ -1,45 +1,15 @@
-name: SonarQube Analysis
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  sonar:
-    name: Run SonarQube analysis
+name: SonarQube Integration
+  sonarqube:
+    name: SonarQube Integration
     runs-on: self-hosted
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'  # or any other version
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests (optional but recommended)
-        run: npm test -- --coverage
-        # If using Jest, this will generate a code coverage report.
-
-      - name: Install SonarScanner
-        run: npm install --save-dev sonar-scanner
-
-      - name: Run SonarQube scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Use the SonarQube token secret
-        run: |
-          npx sonar-scanner \
-            -Dsonar.projectKey=your_project_key \
-            -Dsonar.sources=src \
-            -Dsonar.tests=test \
-            -Dsonar.testExecutionReportPaths=test-report.xml \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=$SONAR_TOKEN
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} #//Sonar Token generated 
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #example URL (https://sq.bswlog.co.in/)
