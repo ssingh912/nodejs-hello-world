@@ -1,11 +1,16 @@
 name: Build
-on: push
+
+on:
+  push:
+    branches:
+      - main
+
 
 jobs:
- 
-  sonarqube:
-    name: SonarQube Scan
+  build:
+    name: Build and analyze
     runs-on: self-hosted
+    
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,5 +25,3 @@ jobs:
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-And you are done!
-
