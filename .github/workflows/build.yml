@@ -1,4 +1,4 @@
-name: SonarQube Integration
+name: SonarQube Integration for Node.js
 
 on:
   push:
@@ -10,33 +10,32 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube Scan
-    runs-on: self-hosted  # Windows runner
+    name: SonarQube Scan with WSL
+    runs-on: self-hosted  # Use the Windows runner
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         fetch-depth: 0  # Disabling shallow clone to improve the relevancy of reporting
-    
-    - name: Setup SonarQube Scanner for MSBuild
-      uses: SonarSource/sonarcloud-github-action@v2.0.1  # Or use sonar-scanner-cli if needed
 
-    - name: Install .NET Core SDK (if needed)
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '6.x'  # Specify your .NET version
-
-    - name: Build and run SonarQube scanner for MSBuild
+    - name: Install WSL (Ubuntu)
       run: |
-        # Install SonarQube Scanner for MSBuild
-        choco install sonarscanner-msbuild --version 5.6.2
-        
-        # Begin analysis
-        SonarScanner.MSBuild.exe begin /k:"your_project_key" /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url=${{ secrets.SONAR_HOST_URL }}
-        
-        # Build the project (replace with your build command)
-        dotnet build
+        # Install WSL with Ubuntu if not already installed
+        wsl --install -d Ubuntu
 
-        # End analysis
-        SonarScanner.MSBuild.exe end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
+    - name: Install Node.js and Dependencies inside WSL
+      run: |
+        # Install Node.js and project dependencies inside WSL (Ubuntu)
+        wsl bash -c "
+          sudo apt update && sudo apt install -y curl unzip
+          curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+          sudo apt install -y nodejs
+          cd /mnt/c/$(System.DefaultWorkingDirectory)/ && npm install
+        "
+
+    - name: Run SonarQube Scan with prebuilt action inside WSL
+      uses: sonarsource/sonarqube-scan-action@v1.2.0  # Use the prebuilt SonarQube scan action
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # SonarQube token stored in GitHub secrets
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # SonarQube URL stored in GitHub secrets
