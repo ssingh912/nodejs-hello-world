@@ -3,24 +3,40 @@ name: SonarQube Integration
 on:
   push:
     branches:
-      - main  # or specify the branches you want to trigger the scan on
+      - main  # Adjust to your preferred branch
   pull_request:
     branches:
-      - main  # or specify the branches for PRs
+      - main  # Adjust to your preferred branch
 
 jobs:
   sonarqube:
     name: SonarQube Scan
-    runs-on: self-hosted  # Change to Windows runner
-    
+    runs-on: self-hosted  # Windows runner
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         fetch-depth: 0  # Disabling shallow clone to improve the relevancy of reporting
     
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v1.2.0  # Using stable version of the action
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token generated from SonarQube
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Example URL (e.g., https://sq.bswlog.co.in/)
+    - name: Setup SonarQube Scanner for MSBuild
+      uses: SonarSource/sonarcloud-github-action@v2.0.1  # Or use sonar-scanner-cli if needed
+
+    - name: Install .NET Core SDK (if needed)
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.x'  # Specify your .NET version
+
+    - name: Build and run SonarQube scanner for MSBuild
+      run: |
+        # Install SonarQube Scanner for MSBuild
+        choco install sonarscanner-msbuild --version 5.6.2
+        
+        # Begin analysis
+        SonarScanner.MSBuild.exe begin /k:"your_project_key" /d:sonar.login=${{ secrets.SONAR_TOKEN }} /d:sonar.host.url=${{ secrets.SONAR_HOST_URL }}
+        
+        # Build the project (replace with your build command)
+        dotnet build
+
+        # End analysis
+        SonarScanner.MSBuild.exe end /d:sonar.login=${{ secrets.SONAR_TOKEN }}
