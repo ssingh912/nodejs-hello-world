@@ -8,7 +8,7 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Integration
-    runs-on: self-hosted
+    runs-on: windows-latest  # Use Windows runner
 
     steps:
       - uses: actions/checkout@v2
@@ -16,7 +16,15 @@ jobs:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
 
-      - name: SonarQube Scan
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Specify your desired Node.js version (e.g., 16 or 18)
+
+      - name: Install dependencies
+        run: npm install  # This will install the dependencies from package.json
+
+      - name: Run SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Sonar Token generated
