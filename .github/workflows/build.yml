@@ -24,9 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install  # Install the dependencies from package.json
 
-      - name: Install SonarQube Scanner
+      - name: Install SonarQube Scanner globally using npm
         run: |
-          choco install sonarscanner  # Install SonarQube Scanner using Chocolatey (Windows package manager)
+          npm install -g sonar-scanner  # Install SonarQube Scanner globally using npm
 
       - name: Run SonarQube Scan
         run: |
