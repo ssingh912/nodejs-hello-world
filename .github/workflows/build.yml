@@ -1,28 +1,37 @@
-name: Build
-on: push
+name: SonarQube Integration
+
+on:
+  push:
+    branches:
+      - main  # You can change this to any branch you want to run the scan on
 
 jobs:
   sonarqube:
-    name: SonarQube Scan
-    runs-on: self-hosted
+    name: SonarQube Integration
+    runs-on: windows-latest  # Use Windows runner
+
     steps:
-      - name: Checkout source code
+      - name: Checkout Code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Disabling shallow clone to improve relevancy of reporting
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '16'  # Specify the Node.js version you want to use (e.g., 16 or 18)
 
       - name: Install dependencies
-        run: |
-          choco install yarn # Install Yarn on Windows via Chocolatey
-          yarn install
+        run: npm install  # Install the dependencies from package.json
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Install SonarQube Scanner globally using npm
+        run: npm install -g sonar-scanner  # Install SonarQube Scanner globally using npm
+
+      - name: Run SonarQube Scan
+        run: |
+          sonar-scanner ^
+            -Dsonar.projectKey=my-project-key ^
+            -Dsonar.organization=my-organization ^
+            -Dsonar.host.url="${{ secrets.SONAR_HOST_URL }}" ^
+            -Dsonar.login="${{ secrets.SONAR_TOKEN }}"  # Use GitHub secrets for secure access
+        shell: powershell  # Ensure we run this using PowerShell in Windows
