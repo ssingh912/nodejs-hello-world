@@ -24,10 +24,7 @@ jobs:
       run: |
         # Install Node.js and project dependencies inside WSL (Ubuntu)
         wsl bash -c "
-          sudo apt update && sudo apt install -y curl unzip
-          curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-          sudo apt install -y nodejs
-          cd /mnt/c/${{ github.workspace }} && npm install
+          cd /mnt/c/${{ github.workspace }} 
         "
 
     - name: Run SonarQube Scan with prebuilt action inside WSL
