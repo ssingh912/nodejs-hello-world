@@ -1,15 +1,26 @@
 name: SonarQube Integration
+
+on:
+  push:
+    branches:
+      - main  # or specify the branches you want to trigger the scan on
+  pull_request:
+    branches:
+      - main  # or specify the branches for PRs
+
+jobs:
   sonarqube:
-    name: SonarQube Integration
-    runs-on: self-hosted
+    name: SonarQube Scan
+    runs-on: self-hosted  # Change to Windows runner
     
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
       with:
-        # Disabling shallow clone is recommended for improving relevancy of reporting
-        fetch-depth: 0
+        fetch-depth: 0  # Disabling shallow clone to improve the relevancy of reporting
+    
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
+      uses: sonarsource/sonarqube-scan-action@v1.2.0  # Using stable version of the action
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} #//Sonar Token generated 
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #example URL (https://sq.bswlog.co.in/)
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token generated from SonarQube
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Example URL (e.g., https://sq.bswlog.co.in/)
