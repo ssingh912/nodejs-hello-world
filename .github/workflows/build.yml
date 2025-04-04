@@ -8,24 +8,30 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Integration
-    runs-on: windows-latest  # Use Windows runner
+    runs-on: self-hosted  # Use Windows runner
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
         with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
+          fetch-depth: 0  # Disabling shallow clone to improve relevancy of reporting
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Specify your desired Node.js version (e.g., 16 or 18)
+          node-version: '16'  # Specify the Node.js version you want to use (e.g., 16 or 18)
 
       - name: Install dependencies
-        run: npm install  # This will install the dependencies from package.json
+        run: npm install  # Install the dependencies from package.json
+
+      - name: Install SonarQube Scanner
+        run: |
+          choco install sonarscanner  # Install SonarQube Scanner using Chocolatey (Windows package manager)
 
       - name: Run SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v1
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Sonar Token generated
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # Example URL (https://sq.bswlog.co.in/)
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=my-project-key \
+            -Dsonar.organization=my-organization \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}  # Use GitHub secrets for secure access
