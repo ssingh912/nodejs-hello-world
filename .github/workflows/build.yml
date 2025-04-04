@@ -19,10 +19,6 @@ jobs:
       with:
         fetch-depth: 0  # Disabling shallow clone to improve the relevancy of reporting
 
-    - name: Install WSL (Ubuntu)
-      run: |
-        # Install WSL with Ubuntu if not already installed
-        wsl --install -d Ubuntu
 
     - name: Install Node.js and Dependencies inside WSL
       run: |
