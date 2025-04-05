@@ -7,19 +7,30 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Scan
-    runs-on: self-hosted  # Self-hosted Windows runner
-    
+    runs-on: self-hosted  # Runs on self-hosted Windows runner
+
     steps:
-      # Step 1: Checkout the source code
       - name: Checkout source code
         uses: actions/checkout@v3  # Latest stable version
         with:
           fetch-depth: 0  # Ensure full history for SonarQube analysis
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3  # Latest stable version
+        with:
+          node-version: '16'  # Use Node.js 16 or another LTS version
 
-      # Step 3: Run SonarQube Scan
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v4  # Stable version of the SonarQube action
+      - name: Install SonarQube Scanner
+        run: |
+          # Download and unzip the SonarQube Scanner
+          Invoke-WebRequest -Uri https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-windows.zip -OutFile sonar-scanner.zip
+          Expand-Archive -Path sonar-scanner.zip -DestinationPath C:\sonar-scanner
+          # Add to PATH
+          [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ";C:\sonar-scanner\sonar-scanner-4.6.2.2472-windows\bin", [System.EnvironmentVariableTarget]::Machine)
+          
+      - name: Run SonarQube Scan
+        run: |
+          sonar-scanner -Dsonar.projectKey=${{ github.repository }} -Dsonar.sources=src
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
