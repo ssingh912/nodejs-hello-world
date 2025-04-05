@@ -10,20 +10,6 @@ jobs:
     name: SonarQube Scan
     runs-on: self-hosted  # Windows self-hosted runner
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch full history for SonarQube analysis
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'  # Node.js 20 LTS
-          cache: 'npm'  # Cache npm dependencies
-
-      - name: Install Dependencies
-        run: npm install
-        shell: powershell  # Windows-compatible shell
 
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4.1
