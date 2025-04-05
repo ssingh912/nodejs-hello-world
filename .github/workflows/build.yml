@@ -7,20 +7,20 @@ on:
 jobs:
   sonarqube:
     name: SonarQube Scan
-    runs-on: self-hosted  # Runs on self-hosted Windows runner
-
+    runs-on: self-hosted  # Windows self-hosted runner
+    
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3  # Latest stable version
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Ensure full history for SonarQube analysis
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3  # Latest stable version
+        uses: actions/setup-node@v3  # Latest stable version of setup-node
         with:
           node-version: '16'  # Use Node.js 16 or another LTS version
 
-      - name: Install SonarQube Scanner
+      - name: Install SonarQube Scanner (manual setup)
         run: |
           # Download and unzip the SonarQube Scanner
           Invoke-WebRequest -Uri https://binaries.sonarsource.com/Commercial/sonar-scanner-cli/sonar-scanner-4.6.2.2472-windows.zip -OutFile sonar-scanner.zip
@@ -28,9 +28,10 @@ jobs:
           # Add to PATH
           [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH + ";C:\sonar-scanner\sonar-scanner-4.6.2.2472-windows\bin", [System.EnvironmentVariableTarget]::Machine)
           
-      - name: Run SonarQube Scan
+      - name: Run SonarQube Scan with Password Authentication
         run: |
           sonar-scanner -Dsonar.projectKey=${{ github.repository }} -Dsonar.sources=src
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # SonarQube host URL (e.g., http://localhost:9000)
+          SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}          # SonarQube username (can be your email or login)
+          SONAR_PASSWORD: ${{ secrets.SONAR_PASSWORD }}    # SonarQube password (use secrets to store it)
