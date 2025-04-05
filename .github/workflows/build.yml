@@ -1,23 +1,25 @@
 name: Build
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
- 
   sonarqube:
     name: SonarQube Scan
-    runs-on: self-hosted
+    runs-on: self-hosted  # Self-hosted Windows runner
+    
     steps:
+      # Step 1: Checkout the source code
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Latest stable version
         with:
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-     
+          fetch-depth: 0  # Ensure full history for SonarQube analysis
+
+
+      # Step 3: Run SonarQube Scan
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+        uses: sonarsource/sonarqube-scan-action@v4  # Stable version of the SonarQube action
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
