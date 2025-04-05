@@ -15,10 +15,15 @@ jobs:
         with:
           fetch-depth: 0  # Ensure full history for SonarQube analysis
 
-      - name: Setup Node.js
+      - name: Check Node.js
         uses: actions/setup-node@v3  # Latest stable version of setup-node
-        with:
-          node-version: '16'  # Use Node.js 16 or another LTS version
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # SonarQube host URL (e.g., http://localhost:9000)
+          SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}          # SonarQube username (can be your email or login)
+          SONAR_PASSWORD: ${{ secrets.SONAR_PASSWORD }}    # SonarQube password (use secrets to store it)
+
+      - name: Setup Node.js
+        uses: SonarSource/sonarqube-scan-action@v4.1  # Latest stable version of setup-node
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # SonarQube host URL (e.g., http://localhost:9000)
           SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}          # SonarQube username (can be your email or login)
