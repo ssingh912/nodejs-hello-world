@@ -1,4 +1,5 @@
-name: Build
+name: Build and SonarQube Scan
+
 on:
   push:
     branches:
@@ -8,23 +9,28 @@ jobs:
   sonarqube:
     name: SonarQube Scan
     runs-on: self-hosted  # Windows self-hosted runner
-    
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full history for SonarQube analysis
-
-      - name: Check Node.js
-        uses: actions/setup-node@v3  # Latest stable version of setup-node
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # SonarQube host URL (e.g., http://localhost:9000)
-          SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}          # SonarQube username (can be your email or login)
-          SONAR_PASSWORD: ${{ secrets.SONAR_PASSWORD }}    # SonarQube password (use secrets to store it)
+          fetch-depth: 0  # Fetch full history for SonarQube analysis
 
       - name: Setup Node.js
-        uses: SonarSource/sonarqube-scan-action@v4.1  # Latest stable version of setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # Node.js 20 LTS
+          cache: 'npm'  # Cache npm dependencies
+
+      - name: Install Dependencies
+        run: npm install
+        shell: powershell  # Windows-compatible shell
+
+      - name: Run SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4.1
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # SonarQube host URL (e.g., http://localhost:9000)
-          SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}          # SonarQube username (can be your email or login)
-          SONAR_PASSWORD: ${{ secrets.SONAR_PASSWORD }}    # SonarQube password (use secrets to store it)
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}    # e.g., http://localhost:9000
+          SONAR_TOKEN: ${{ secrets.SONAR_LOGIN }}          # Use a token instead of username/password
+          SONAR_PROJECT_KEY: my_node_app                   # Replace with your project key
+          SONAR_SOURCES: src                               # Adjust to your source folder
+          SONAR_EXCLUSIONS: node_modules/**,dist/**,*.spec.js  # Exclude unnecessary files
+          SONAR_SOURCE_ENCODING: UTF-8                     # Standard encoding
